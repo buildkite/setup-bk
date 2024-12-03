@@ -1,0 +1,30 @@
+name: Use Action
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+
+jobs:
+  use-action:
+    name: Use Action
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - ubuntu-latest
+          - macos-latest
+          # TODO:
+          # - windows-latest
+    runs-on: ${{ matrix.platform }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./
+      - run: |
+          bk version

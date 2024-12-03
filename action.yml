@@ -1,0 +1,59 @@
+name: "Setup bk"
+author: "Buildkite"
+description: "Install Buildkite CLI (bk)"
+branding:
+  icon: terminal
+  color: green
+runs:
+  # TODO: Convert to a JavaScript action which uses the tool cache, like:
+  # https://docs.github.com/en/actions/sharing-automations/creating-actions/developing-a-third-party-cli-action#example
+  using: "composite"
+  steps:
+  - shell: bash
+    run: |
+      set -ex
+
+      tag=$(curl -s -u "username:${{ github.token }}" https://api.github.com/repos/buildkite/cli/releases/latest | jq -r ".tag_name")
+
+      version=${tag#v}
+
+      case ${{ runner.os }} in
+      Linux)
+        os="linux"
+        ext="tar.gz"
+        out="bk"
+        ;;
+      macOS)
+        os="macOS"
+        ext="zip"
+        out="bk"
+        ;;
+      Windows)
+        os="windows"
+        ext="zip"
+        out="bk.exe"
+        ;;
+      esac
+
+      case ${{ runner.arch }} in
+      X86)
+        arch=386
+        ;;
+      X64)
+        arch=amd64
+        ;;
+      ARM)
+        arch=armv6
+        ;;
+      ARM64)
+        arch=arm64
+        ;;
+      esac
+
+      echo "Installing bk @ ${tag} for ${os} on ${arch}"
+      tmp=$(mktemp -d)
+      cd ${tmp}
+      curl -fsSL https://github.com/buildkite/cli/releases/download/${tag}/bk_${version}_${os}_${arch}.${ext} | tar -xz --strip-components=1
+      chmod +x ${out}
+      PATH=${PATH}:${tmp}
+      echo "${tmp}" >> $GITHUB_PATH
