@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: buildkite/setup-bk
+      - uses: buildkite/setup-bk@v1
       - run: bk package push my-registry my-package.deb
 ```
 
